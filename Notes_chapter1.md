@@ -35,7 +35,8 @@ right. Fast and easy to extend.
 
 * Whether or not they can learn incrementally on the fly (online versus batch learning)
 
-* Whether they work by simply comparing new data points to known data points, or instead by detecting patterns in the training data and building a predictive model, much like scientists do (instance-based versus model-based learning)
+* One more way to categorize Machine Learning systems is by how they generalize. Whether they work by simply comparing new data points to known data points, or instead by detecting patterns in the training data and building a predictive model, much like scientists do (instance-based versus model-based learning)
+
 
 #### Supervised learning
 
@@ -82,5 +83,88 @@ examples - deep belief networks built on top of restricted Boltzmann machines
 
 #### Reinforcement learning
 
+* learning system is called [agent] that observes and learns from data and get [penalties/rewards] in return
+* then it must learn on its own - what is the best strategy called [policy]
+e.g. AlphaGO game
+
+#### Batch or offline learning
+ cant learn incrementally
+ must be trained using all available data at once
+ not reactive
+ needs more compute resources
+ 
+ #### Online learning
+ - can train system incrementally by feeding it data instances sequentally in mini batches
+ - can learn on fly
+ - limited compute resources
+ e.g. stock market data 
+
+[learning rate] : how fast the ML adapts to new data. if LR is high, it will quickly learn but it will also quickly forget old data. Conversly low LR, system will have more inertia i.e. learn more slowly but also less sensitive to noise in new data or outliers
+
+A big challenge with online learning is that if bad data is fed to the system, the system’s performance will gradually decline. If it’s a live system, your clients will notice. For example, bad data could come from a malfunctioning sensor on a robot, or from someone spamming a search engine to try to rank high in search results. To reduce this risk, you need to monitor your system closely and promptly switch learning off (and possibly revert to a previously working state) if you detect a drop in performance. You may also want to monitor the input data and react to abnormal data (e.g., using an anomaly detection algorithm)
 
 
+#### Instance-Based Learning
+system learns by heart from training data and then generalizes to new cases based on a measure of similarity
+
+#### Model based learning
+Build model of examples and then use model to make predictions on new cases
+Performance measure can be defined either as a [utility function] also called [fitness function] that measures how good your model is
+[cost function] - measures how bad your model is
+
+[Model selection] -choosing the type of model and fully specifying its architecture
+Training a model means running an algorithm to find the model parameters that will make it best fit the training data (and hopefully make good predictions on new data)
+
+[Inference]  - make predictions on new cases
+
+### Challenges in ML
+
+* Bad data
+ - Not enough training data
+ - non representative training data
+   - if sample is too small, you will have [sampling noise] (i.e., nonrepresentative data as a result of chance)
+   - Even very large samples can be nonrepresentative if the sampling method is flawed. This is called [sampling bias]
+ - poor quality data (missing data, outliers)
+ - irrelevant features. [feature engineering] includes -
+    - feature selection
+    - feature extraction e.g. dimension reduction
+ 
+ 
+* Bad model
+ - [overfitting] training data - it means that the model performs well on the training data, but it does not generalize well
+ 
+ Overfitting happens when the model is too complex relative to the amount and noisiness of the training data. Here are possible solutions:
+ - Simplify the model by selecting one with fewer parameters (e.g., a linear model rather than a high-degree polynomial model), by reducing the number of attributes in the training data, or by constraining the model.
+ - Gather more training data.
+ - Reduce the noise in the training data (e.g., fix data errors and remove outliers).
+
+
+[Regularization] - Constraining a model to make it simpler and reduce the risk of overfitting
+[degrees of freedom] in the model - no of parameters in the model
+[hyperparameter] The amount of regularization to apply during learning can be controlled by a hyperparameter. A hyperparameter is a parameter of a learning algorithm (not of the model). As such, it is not affected by the learning algorithm itself; it must be set prior to training and remains constant during training.
+
+if you set the regularization hyperparameter to a very large value, you will get an almost flat model (a slope close to zero); the learning algorithm will almost certainly not overfit the training data, but it will be less likely to find a good solution. Tuning hyperparameters is an important part of building a Machine Learning system.
+
+[underfitting] - model is too simple for the data. Solution is to select a more powerful complex model,feed better features [ feature organising] or reduce constraints on the model [regularization hyperparameter]
+
+
+#### Testing and validation
+
+Data is split  into training and test ( typically 80/20 ratio )
+error rate on validation data is called generalization error [out of sample error]. test data can give you an estimate of this error rate.
+if test data error rate is low and generalization error rate is high - overfitting model
+
+
+#### Hyperparameter Tuning and Model Selection
+
+Because hyperparameter tuning on test set will only give good results for test dataset. this problem is overcome by [holdout validation]
+: you simply hold out part of the training set to evaluate several candidate models and select the best one. The new held-out set is called the [validation set] (or sometimes the development set, or dev set). 
+More specifically, you train multiple models with various hyperparameters on the reduced training set (i.e., the full training set minus the validation set), and you select the model that performs best on the validation set. After this holdout validation process, you train the best model on the full training set (including the validation set), and this gives you the final model. Lastly, you evaluate this final model on the test set to get an estimate of the generalization error
+
+However, if the validation set is too small, then model evaluations will be imprecise: you may end up selecting a suboptimal model by mistake. Conversely, if the validation set is too large, then the remaining training set will be much smaller than the full training set. Why is this bad? Well, since the final model will be trained on the full training set, it is not ideal to compare candidate models trained on a much smaller training set. It would be like selecting the fastest sprinter to participate in a marathon. One way to solve this problem is to perform repeated [cross-validation], using many small validation sets. Each model is evaluated once per validation set after it is trained on the rest of the data. By averaging out all the evaluations of a model, you get a much more accurate measure of its performance. There is a drawback, however: the training time is multiplied by the number of validation sets.
+
+#### Data Mismatch
+validation set and the test set must be as representative as possible of the data you expect to use in production
+[train-dev set] - After the model is trained (on the training set, not on the train-dev set), you can evaluate it on the train-dev set. If it performs well, then the model is not overfitting the training set. If it performs poorly on the validation set, the problem must be coming from the data mismatch. 
+ 
+ Conversely, if the model performs poorly on the train-dev set, then it must have overfit the training set, so you should try to simplify or regularize the model, get more training data, and clean up the training data
